@@ -17,6 +17,18 @@ import sys  # For command line arguments
 
 browser_choice = 'Edge'    # Hardcode Chrome on MacBook or Edge on Snapdragon
 
+# Get the command line argument
+try:
+    server = sys.argv[1]
+    num_input = int(sys.argv[2])
+except ValueError:
+    print("The arguments must be integers.")
+    sys.exit(1)
+
+if num_input < 1:
+    print("The last command line argument must be a positive integer")
+    sys.exit(1)
+    
 # Dynamically import the correct service, which does the following
 # If running Selenium with Chrome on either Windows Intel/AMD or macOS/MacBook CPU
     # from selenium.webdriver.chrome.service import Service
@@ -102,18 +114,6 @@ duration = 360
 # Check command line arguments
 if len(sys.argv) != 3 or not (sys.argv[1] == 'linode' or sys.argv[1] == 'local'):
     print("Usage: python selenium_play.py linode|local <num>, num is # of videos to play")
-    sys.exit(1)
-
-# Get the command line argument
-try:
-    server = sys.argv[1]
-    num_input = int(sys.argv[2])
-except ValueError:
-    print("The arguments must be integers.")
-    sys.exit(1)
-
-if num_input < 1:
-    print("The last command line argument must be a positive integer")
     sys.exit(1)
 
 ret1 = get_data_from_server("All", server)    # All means all songs
