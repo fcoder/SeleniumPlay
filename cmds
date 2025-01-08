@@ -1,0 +1,134 @@
+cmds  This file
+
+Source Code
+  get_server_urls.py    main
+  selenium_play.py      imported by get_server_urls.py
+  get_yt_duration.py    imported by get_server_urls.py
+
+Environment
+  venv
+  requirements_mac.txt
+
+For compiled version:
+  build
+  dist
+  __pycache__
+  selenium_play.spec
+
+
+Must Do The Following Before Running The Python Code
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install selenium 
+  pip install pyinstaller     for compilation
+  pip install pytube
+  pip install beautifulsoup4
+  pip install requests
+  pip install lxml
+  pip install isodate
+
+If we run Chinesesong Flask server on my MacBook: flask run --port=5001
+
+Enable "Allow Remote Automation" on Safari.
+  Open Safari:
+  Launch Safari on your MacBook Pro.
+  Enable the Develop Menu:
+  Go to Safari > Settings (or Preferences on older macOS versions).
+  Click on the Advanced tab.
+  Select Developer Settings...
+  Check the box for "Show Develop menu in menu bar".
+  Close and reopen Safari to ensure the setting takes effect if necessary
+
+
+Create my Youtube API account AIzaSyBsU4svkh34KS9EiMKWy4UKDyBKQbF2WVU
+
+
+To compile (Must do pip install pyinstaller first):
+  pyinstaller --onefile selenium_play.py 
+
+To run on MacBook with Caffeinate so that the computer will not enter sleep mode. -i prevents idle sleep
+Run source code
+  caffeinate -i python3 selenium_play.py linode|local <n>
+                python3 selenium_play.py linode|local <n>
+Run compiled executable
+  caffeinate -i dist/selenium_play linode|local <n>
+                dist/selenium_play linode|local <n>
+
+Prepare Safari for using Selenium
+For Safari
+Safari Browser:
+
+Safari is pre-installed on macOS. Ensure you are using the latest version by checking for macOS updates.
+Enable WebDriver for Safari:
+
+Safari has a built-in WebDriver (SafariDriver). You need to enable it:
+Open Safari > Preferences > Advanced.
+Check "Show Develop menu in menu bar".
+In the Develop menu, select "Allow Remote Automation".
+No Additional Driver Needed:
+
+SafariDriver comes bundled with Safari, so you don’t need to download anything extra.
+
+
+Difference between MacOS/Safari and WinTel/Chrome:
+  Detect Operating System:
+  Uses platform.system() to determine whether the program is running on macOS or Windows.
+
+  Initialize Correct WebDriver:
+  Initializes Safari for macOS and Chrome for Windows with appropriate options.
+
+  Cross-Platform Handling:
+  Handles WebDriver differences within an if...elif...else structure.
+
+  Unified Code:
+  Shared logic for playing videos is the same for both operating systems.
+
+
+=======================================
+To get the code work on a WinTel system
+=======================================
+(1) Check if python is installed on WinTel with python --version
+(2) May not see python unless the path is in the system environment variable
+    Win-S to open and search for Environment Variables. Selet Path, press New to add the path to python into sys env variables
+    Then I can see python --version from anywhere
+(3) Use python -m ensurepip --default-pip to check if pip is installed
+(4) Also add  C:\Users\<YourUsername>\AppData\Local\Programs\Python\<PythonVersion>\Scripts\ to System Environment Variable
+    Then I will be able to use  pip
+(5) Do python -m venv venv to create a venv
+(6) venv\Scripts\activate to activate (Diff from MacBook)
+    deactivate
+(7) Use pip install to install all the python packages listed at the beginning of this cmds
+(8) In order to run selenium_play.py on a WinTel using Chrome, I need to install ChromeDriver
+    In Chrome, type chrome://settings/help to see Chrome version
+    On the WinTel, Use Chrome to visit https://sites.google.com/chromium.org/driver/ 
+    Click Downloads in Navigation Bar
+    Fond the match ChromeDriver version for my Chrome, copy the URL to download
+    Unzip the ChromeDriver, it is on the following path, so set driver_path in selenium.py
+    driver_path = r"C:\Users\swang\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe"
+(9) Now just run selenium with python selenium.py linode <n>
+(10) Also compiled with command pyinstaller --onefile selenium_play.py 
+
+findstr is grep on WinTel 
+
+==================================================================
+Options for Using Selenium with Chrome on Windows with Snapdragon:
+==================================================================
+*** Use Chromium Edge (Microsoft Edge) Instead ***
+Why This Works:
+  Microsoft Edge, based on Chromium, has better support for Windows on ARM, and the
+  EdgeDriver is fully compatible with ARM-based systems.
+  Steps:
+    1. Install Microsoft Edge for Windows on ARM: Download Edge.
+    2. Download the matching version of EdgeDriver: Download EdgeDriver.
+    3. Use Selenium with the following code snippet: 
+
+      from selenium import webdriver
+      from selenium.webdriver.edge.service import Service
+      from selenium.webdriver.edge.options import Options
+
+      edge_options = Options()
+      edge_options.add_argument("--start-maximized")
+      service = Service("path/to/msedgedriver")  # Path to the EdgeDriver executable
+
+      driver = webdriver.Edge(service=service, options=edge_options)
+      driver.get("https://www.google.com")
