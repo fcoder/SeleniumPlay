@@ -15,10 +15,6 @@ import time
 import random
 import sys  # For command line arguments
 
-
-
-
-# Determine which browser to use
 browser_choice = 'Edge'    # Hardcode Chrome on MacBook or Edge on Snapdragon
 
 # Dynamically import the correct service, which does the following
@@ -28,7 +24,6 @@ browser_choice = 'Edge'    # Hardcode Chrome on MacBook or Edge on Snapdragon
 # else if running Selenium with Edge on Windows and Snapdragon ARM64 CPU
     # from selenium.webdriver.edge.service import Service # For Edge
     # from selenium.webdriver.edge.options import Options
-
 if browser_choice == 'Chrome':
     service_module = importlib.import_module('selenium.webdriver.chrome.service')
     Service = service_module.Service
@@ -58,7 +53,6 @@ if os_name == "Darwin":  # macOS
     print("Running Selenium with Chrome on macOS on MacBook")
     chrome_options = Options()       # Needed for Maximize browser window etc
     chrome_options.add_argument("--start-maximized")  # Start Chrome maximized
-    driver = webdriver.Chrome(service=Service(driver_path), options=chrome_options)
 elif os_name == "Windows":  # Windows
     # Get the machine architecture, so we can use different drivers for Chrome and Edge
     arch = platform.machine()
@@ -69,7 +63,6 @@ elif os_name == "Windows":  # Windows
         print(f"Running Selenium with Chrome on Windows with {arch} CPU")
         chrome_options = Options()   # Needed for Maximize browser window etc
         chrome_options.add_argument("--start-maximized")  # Start Chrome maximized
-        driver = webdriver.Chrome(service=Service(driver_path), options=chrome_options)
     elif arch == "ARM64":
         edge_options = Options()                      # Needed for Maximize browser window etc
 
@@ -94,16 +87,15 @@ elif os_name == "Windows":  # Windows
         # Set the path to the EdgeDriver executable 
         driver_path = r"C:\Users\User\Yuming\edgedriver_arm64\msedgedriver.exe"
         print(f"Running Selenium with Edge on Windows with Snapdragon ARM64 CPU")
-        # Create a Service object with the path to the EdgeDriver
-        service = Service(driver_path)
-        # Initialize the Edge WebDriver with the path
-        driver = webdriver.Edge(service=service, options=edge_options)
     else:
         print(f"Unknown architecture: {arch}")
         sys.exit(1)
 else:
     print(f"Unknown OS: {os_name}")
     sys.exit(1)
+
+service = Service(executable_path=driver_path)
+driver  = driver_class(service=service)
 
 duration = 360
 
