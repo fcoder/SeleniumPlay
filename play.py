@@ -1,24 +1,48 @@
 # See cmds for some requirements before this program can run
 
 import platform
+import importlib  # So that we can import packages in the same name for different browser
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-# For running Selenium with Chrome on either Windows Intel/AMD or macOS/MacBook CPU
-   # from selenium.webdriver.chrome.service import Service
-   # from selenium.webdriver.chrome.options import Options
-# For running Selenium with Edge on Windows and Snapdragon ARM64 CPU
 from selenium.webdriver.edge.service import Service # For Edge
 from selenium.webdriver.edge.options import Options
-
 from get_server_urls import get_data_from_server, videos
 from get_yt_duration import get_video_duration
 import time
 import random
 import sys  # For command line arguments
+
+
+
+
+# Determine which browser to use
+browser_choice = 'Edge'    # Hardcode Chrome on MacBook or Edge on Snapdragon
+
+# Dynamically import the correct service, which does the following
+# If running Selenium with Chrome on either Windows Intel/AMD or macOS/MacBook CPU
+    # from selenium.webdriver.chrome.service import Service
+    # from selenium.webdriver.chrome.options import Options
+# else if running Selenium with Edge on Windows and Snapdragon ARM64 CPU
+    # from selenium.webdriver.edge.service import Service # For Edge
+    # from selenium.webdriver.edge.options import Options
+
+if browser_choice == 'Chrome':
+    service_module = importlib.import_module('selenium.webdriver.chrome.service')
+    Service = service_module.Service
+    driver_class = webdriver.Chrome
+elif browser_choice == 'Edge':
+    service_module = importlib.import_module('selenium.webdriver.edge.service')
+    Service = service_module.Service
+    driver_class = webdriver.Edge
+else:
+    raise ValueError("Invalid browser choice")
+
+# Now you can use the dynamically imported Service and driver_class
+# service = Service(executable_path='path_to_driver')
+# driver = driver_class(service=service)
 
 # Determine the operating system
 os_name = platform.system()
@@ -100,7 +124,7 @@ if num_input < 1:
     print("The last command line argument must be a positive integer")
     sys.exit(1)
 
-ret1 = get_data_from_server("All", server)  # All means all songs
+ret1 = get_data_from_server("All", server)    # All means all songs
 ret2 = get_data_from_server("Bonus", server)  # Bonus will get data for all bonuses
 
 if ret1 == -1 or ret2 == -1:
