@@ -1,16 +1,17 @@
-# This file is for running Selenium with Edge on Samsung Snapdragon ARM64 laptop
+# This file is for running Selenium with Chrome on WinTel system (Not fully tested)
 # See cmds for some requirements before this program can run
 
 from selenium import webdriver
-from selenium.webdriver.common.by    import By
-from selenium.webdriver.support.ui   import WebDriverWait
-from selenium.webdriver.support      import expected_conditions as EC
-from selenium.webdriver.edge.service import Service
-from selenium.webdriver.edge.options import Options
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from get_server_urls import get_urls_from_server, videos
 from get_yt_duration import get_video_duration
 import time, random, sys
+import platform
 
 # Get the command line argument
 try:
@@ -28,31 +29,10 @@ if len(sys.argv) != 3 or not (sys.argv[1] == 'linode' or sys.argv[1] == 'local')
     print("Usage: python selenium_play.py linode|local <num>, num is # of videos to play")
     sys.exit(1)
 
-print(f"Running Selenium with Edge on Windows with Snapdragon ARM64 CPU")
-edge_options = Options()                                        # Needed for Maximize browser window etc
-edge_options.add_argument('--disable-gpu')                      # Disables GPU hardware acceleration.
-edge_options.add_argument('--disable-software-rasterizer')      # May help avoid relying on GPU HW acceleration
-edge_options.add_argument('--force-compositing-mode')           # Forces compositing mode, avoiding GPU issues
-edge_options.add_argument('--disable-accelerated-video-decode') # Disable accelerated video decode
-edge_options.add_argument('--disable-accelerated-video-encode') # Disable accelerated video encode
-edge_options.add_argument('--disable-accelerated-2d-canvas')    # Disable 2D canvas acceleration
-edge_options.add_argument('--use-gl=desktop')                   # Forces use of desktop OpenGL
-edge_options.add_argument('--disable-compositing')              # Disable compositing altogether.
-edge_options.add_argument('--use-angle=direct3d')               # Force Direct3D rendering backend
-edge_options.add_argument('--log-level=3')                      # Set logging to 'ERROR' level
-edge_options.add_argument('--disable-video-overlay')            # Disable video overlay features
-edge_options.add_argument('--disable-video-autoplay')           # Disable video autoplay features
-edge_options.add_argument('--disable-dev-shm-usage')            # Avoid logging related to dev tools
-
-driver_class = webdriver.Edge      # Snapdragon has to use Selenium with Edge browser
-driver_path  = r"C:\Users\User\Yuming\edgedriver_arm64\msedgedriver.exe"    # Set path to EdgeDriver
-service      = Service(executable_path=driver_path)
-driver       = driver_class(service=service)
-
-if get_urls_from_server("All", server) == -1:    # All means all songs
+if get_urls_from_server("All", server) == -1:     # All means all songs
     print("Error: abort")
     sys.exit(1)  # Abort!
-if get_urls_from_server("Bonus", server) == -1:  # Bonus will get data for all bonuses
+if get_urls_from_server("Bonus", server) == -1:   # Bonus will get data for all bonuses
     print("Error: abort")
     sys.exit(1)  # Abort!
 
@@ -61,6 +41,23 @@ num_min    = min(num_input, num_videos)
 print(f"Got {num_videos} songs and bonus from server, playing the first {num_min}...")
 
 random.shuffle(videos)  # Shuffle the items inside array videos
+
+# Check if this program is running on a WinTel computer
+arch = platform.machine()
+if arch == "x86_64" or arch == "AMD64":    # Don't confuse AMD64 with ARM64!
+    print(f"Running Selenium with Chrome on Windows with {arch} CPU")
+else:
+    print("Error: CPU is not x86_64 or ARM64")
+    sys.exit(1)
+
+# Configure Chrome
+chrome_options = Options()
+chrome_options.add_argument("--start-maximized")  # Start Chrome maximized
+
+driver_class = webdriver.Chrome
+driver_path  = r"C:\Users\swang\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe"
+service      = Service(executable_path=driver_path)
+driver       = driver_class(service=service)
 
 try:  # Any exception during the loop will jump directly to the finally block.
     for i, video in enumerate(videos):
@@ -124,7 +121,6 @@ try:  # Any exception during the loop will jump directly to the finally block.
 
 
             # Step 6: Call get_yt_video_duration(video['url']) to get the duration of the YouTube video from YouTube website
-            # duration = 360  # Default time in seconds for play a video
             duration = get_video_duration(video['url']) + 3
             minutes, seconds = divmod(int(duration), 60)
             formatted_time = f"{minutes}:{seconds:02}"  # Format as "minutes:seconds"

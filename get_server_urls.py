@@ -38,7 +38,7 @@ def find_num_of_pages(category, server):
 #! Visit baseurl + '/songs/All/x' or baseurl + '/songs/Bonus/x' (where x=1,2,3...last_page)
 # to get the html pages for all the paginated songs or bonuses to get song titles and play counters
 # category is either "song" or "bonus"
-def get_data_from_server(category, server):
+def get_urls_from_server(category, server):
     baseurl, last_page = find_num_of_pages(category, server)  #! Call function defined above
     if last_page == -1:
         return -1

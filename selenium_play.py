@@ -7,7 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.edge.service import Service # For Edge
 # from selenium.webdriver.edge.options import Options     MOVE TO IF ELSE
-from get_server_urls import get_data_from_server, videos
+from get_server_urls import get_urls_from_server, videos
 from get_yt_duration import get_video_duration
 import time
 import random
@@ -107,8 +107,8 @@ driver  = driver_class(service=service)
 
 duration = 360
 
-ret1 = get_data_from_server("All", server)    # All means all songs
-ret2 = get_data_from_server("Bonus", server)  # Bonus will get data for all bonuses
+ret1 = get_urls_from_server("All", server)    # All means all songs
+ret2 = get_urls_from_server("Bonus", server)  # Bonus will get data for all bonuses
 
 if ret1 == -1 or ret2 == -1:
     print("Error: abort")

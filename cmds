@@ -11,9 +11,12 @@ On Susan Snapdragon
   To do
 
 Source Code
-  get_server_urls.py    main
-  selenium_play.py      imported by get_server_urls.py
-  get_yt_duration.py    imported by get_server_urls.py
+  selenium_play.py      For all platforms
+  selenium_mac.py       For MacBook Pro
+  selenium_dragon.py    For Samsung Snapdragon
+  selenium_wintel.py    For WinTel computers
+  get_server_urls.py    imported by selenium_???.py
+  get_yt_duration.py    imported by selenium_???.py
   cmds                  This file
 
 Environment
@@ -57,14 +60,17 @@ Create my Youtube API account AIzaSyBsU4svkh34KS9EiMKWy4UKDyBKQbF2WVU
 
 To compile (Must do pip install pyinstaller first):
   pyinstaller --onefile selenium_play.py 
+  pyinstaller --onefile selenium_mac.py
+  pyinstaller --onefile selenium_dragon.py
+  pyinstaller --onefile selenium_wintel.py
 
 To run on MacBook with Caffeinate so that the computer will not enter sleep mode. -i prevents idle sleep
-Run source code
-  caffeinate -i python3 selenium_play.py linode|local <n>
-                python3 selenium_play.py linode|local <n>
+Run source code  ??? = play, mac, dragon, wintel
+  caffeinate -i python3 selenium_???.py linode|local <n>
+                python3 selenium_???.py linode|local <n>
 Run compiled executable
-  caffeinate -i dist/selenium_play linode|local <n>
-                dist/selenium_play linode|local <n>
+  caffeinate -i dist/selenium_??? linode|local <n>
+                dist/selenium_??? linode|local <n>
 
 Prepare Safari for using Selenium
 For Safari
