@@ -1,17 +1,29 @@
-cmds  This file
+===============================
+How to Run the Compiled Program
+===============================
+On Yuming MacBook Pro
+  cd ~/MyProjects/Python/SmallProg/SeleniumPlay
+  play <n>          to use www.chinesesong.net
+  play_local <n>    Run "flask run --port=5001" to start localhost server first
+  play and play_local are scripts under /usr/local/bin
+
+On Susan Snapdragon
+  To do
 
 Source Code
   get_server_urls.py    main
   selenium_play.py      imported by get_server_urls.py
   get_yt_duration.py    imported by get_server_urls.py
+  cmds                  This file
 
 Environment
   venv
-  requirements_mac.txt
+  requirements_macbook.txt   For Yuming's MacBook Pro
+  requirements_arm64.txt     For Susan's Snapdragon
 
 For compiled version:
   build
-  dist
+  dist/selenium_play
   __pycache__
   selenium_play.spec
 
@@ -20,12 +32,12 @@ Must Do The Following Before Running The Python Code
   python3 -m venv venv
   source venv/bin/activate
   pip install selenium 
-  pip install pyinstaller     for compilation
   pip install pytube
   pip install beautifulsoup4
   pip install requests
   pip install lxml
   pip install isodate
+  pip install pyinstaller     for compilation
 
 If we run Chinesesong Flask server on my MacBook: flask run --port=5001
 
@@ -84,9 +96,9 @@ Difference between MacOS/Safari and WinTel/Chrome:
   Shared logic for playing videos is the same for both operating systems.
 
 
-=======================================
-To get the code work on a WinTel system
-=======================================
+===========================================
+How To Get The Code Work On A WinTel System
+===========================================
 (1) Check if python is installed on WinTel with python --version
 (2) May not see python unless the path is in the system environment variable
     Win-S to open and search for Environment Variables. Selet Path, press New to add the path to python into sys env variables

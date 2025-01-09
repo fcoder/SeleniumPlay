@@ -1,19 +1,55 @@
 # See cmds for some requirements before this program can run
 
 import platform
+import importlib  # So that we can import packages in the same name for different browser
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-
+from selenium.webdriver.edge.service import Service # For Edge
+from selenium.webdriver.edge.options import Options
 from get_server_urls import get_data_from_server, videos
 from get_yt_duration import get_video_duration
 import time
 import random
 import sys  # For command line arguments
+
+browser_choice = 'Chrome'    # Hardcode Chrome on MacBook or Edge on Snapdragon
+
+# Get the command line argument
+try:
+    server = sys.argv[1]
+    num_input = int(sys.argv[2])
+except ValueError:
+    print("The arguments must be integers.")
+    sys.exit(1)
+
+if num_input < 1:
+    print("The last command line argument must be a positive integer")
+    sys.exit(1)
+
+# Dynamically import the correct service, which does the following
+# If running Selenium with Chrome on either Windows Intel/AMD or macOS/MacBook CPU
+    # from selenium.webdriver.chrome.service import Service
+    # from selenium.webdriver.chrome.options import Options
+# else if running Selenium with Edge on Windows and Snapdragon ARM64 CPU
+    # from selenium.webdriver.edge.service import Service # For Edge
+    # from selenium.webdriver.edge.options import Options
+if browser_choice == 'Chrome':
+    service_module = importlib.import_module('selenium.webdriver.chrome.service')
+    Service = service_module.Service
+    driver_class = webdriver.Chrome
+elif browser_choice == 'Edge':
+    service_module = importlib.import_module('selenium.webdriver.edge.service')
+    Service = service_module.Service
+    driver_class = webdriver.Edge
+else:
+    raise ValueError("Invalid browser choice")
+
+# Now you can use the dynamically imported Service and driver_class
+# service = Service(executable_path='path_to_driver')
+# driver = driver_class(service=service)
 
 # Determine the operating system
 os_name = platform.system()
@@ -23,24 +59,64 @@ if os_name == "Darwin":  # macOS
     # Using Safari for Selenium also works but is buggy, now both macOS & Windows use ChromeDriver
     # with Selenium. See more info at the bottom of this file
     # driver = webdriver.Safari()
-    # print("Running on macOS with Safari")
+    # print("Running Selenium with Safari on macOS")
 
     driver_path = "/Users/Yuming/MyInstall/chromedriver-mac-arm64/chromedriver"
-    print("Running on macOS with Chrome")
+    print("Running Selenium with Chrome on macOS on MacBook")
+    chrome_options = Options()       # Needed for Maximize browser window etc
+    chrome_options.add_argument("--start-maximized")  # Start Chrome maximized
 elif os_name == "Windows":  # Windows
-    driver_path = r"C:\Users\swang\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe"
-    print("Running on Windows with Chrome")
+    # Get the machine architecture, so we can use different drivers for Chrome and Edge
+    arch = platform.machine()
+
+    # Print out the architecture type
+    if arch == "AMD64" or arch == "x86_64":
+        driver_path = r"C:\Users\swang\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe"
+        print(f"Running Selenium with Chrome on Windows with {arch} CPU")
+        chrome_options = Options()   # Needed for Maximize browser window etc
+        chrome_options.add_argument("--start-maximized")  # Start Chrome maximized
+    elif arch == "ARM64":
+        edge_options = Options()                      # Needed for Maximize browser window etc
+
+        edge_options.add_argument('--disable-gpu')    # Disables GPU hardware acceleration.
+        # edge_options.add_argument('--no-sandbox')   # Runs Edge without sandboxing (useful on some
+        edge_options.add_argument('--disable-software-rasterizer')       # May help avoid relying on GPU HW acceleration altogether.
+        edge_options.add_argument('--force-compositing-mode')            # Forces compositing mode, avoiding GPU issues
+        edge_options.add_argument('--disable-accelerated-video-decode')  # Disable accelerated video decode
+        edge_options.add_argument('--disable-accelerated-video-encode')  # Disable accelerated video encode
+        edge_options.add_argument('--disable-accelerated-2d-canvas')     # Disable 2D canvas acceleration
+
+        edge_options.add_argument('--use-gl=desktop')          # Forces use of desktop OpenGL
+        edge_options.add_argument('--disable-compositing')     # Disable compositing altogether.
+        edge_options.add_argument('--use-angle=direct3d')      # Force Direct3D rendering backend
+        edge_options.add_argument('--log-level=3')             # Set logging to 'ERROR' level
+
+        edge_options.add_argument('--disable-video-overlay')   # Disable video overlay features
+        edge_options.add_argument('--disable-video-autoplay')  # Disable video autoplay features
+
+        edge_options.add_argument('--disable-dev-shm-usage')   # Avoid logging related to dev tools
+
+        # Set the path to the EdgeDriver executable
+        driver_path = r"C:\Users\User\Yuming\edgedriver_arm64\msedgedriver.exe"
+        print(f"Running Selenium with Edge on Windows with Snapdragon ARM64 CPU")
+    else:
+        print(f"Unknown architecture: {arch}")
+        sys.exit(1)
 else:
-    print(f"Unsupported operating system: {os_name}")
+    print(f"Unknown OS: {os_name}")
     sys.exit(1)
 
-chrome_options = Options()
-chrome_options.add_argument("--start-maximized")  # Start Chrome maximized
-driver = webdriver.Chrome(service=Service(driver_path), options=chrome_options)
+service = Service(executable_path=driver_path)
+driver  = driver_class(service=service)
 
 duration = 360
 
-ret1 = get_data_from_server("All", server)  # All means all songs
+# Check command line arguments
+if len(sys.argv) != 3 or not (sys.argv[1] == 'linode' or sys.argv[1] == 'local'):
+    print("Usage: python selenium_play.py linode|local <num>, num is # of videos to play")
+    sys.exit(1)
+
+ret1 = get_data_from_server("All", server)    # All means all songs
 ret2 = get_data_from_server("Bonus", server)  # Bonus will get data for all bonuses
 
 if ret1 == -1 or ret2 == -1:
