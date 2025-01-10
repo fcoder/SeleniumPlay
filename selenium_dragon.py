@@ -6,7 +6,7 @@ from selenium.webdriver.common.by    import By
 from selenium.webdriver.support.ui   import WebDriverWait
 from selenium.webdriver.support      import expected_conditions as EC
 from selenium.webdriver.edge.service import Service
-from selenium.webdriver.edge.options import Options
+# from selenium.webdriver.edge.options import Options  Does not help, so comment out
 from selenium.webdriver.common.action_chains import ActionChains
 from get_server_urls import get_urls_from_server, videos
 from get_yt_duration import get_video_duration
@@ -29,20 +29,30 @@ if len(sys.argv) != 3 or not (sys.argv[1] == 'linode' or sys.argv[1] == 'local')
     sys.exit(1)
 
 print(f"Running Selenium with Edge on Windows with Snapdragon ARM64 CPU")
-edge_options = Options()                                        # Needed for Maximize browser window etc
-edge_options.add_argument('--disable-gpu')                      # Disables GPU hardware acceleration.
-edge_options.add_argument('--disable-software-rasterizer')      # May help avoid relying on GPU HW acceleration
-edge_options.add_argument('--force-compositing-mode')           # Forces compositing mode, avoiding GPU issues
-edge_options.add_argument('--disable-accelerated-video-decode') # Disable accelerated video decode
-edge_options.add_argument('--disable-accelerated-video-encode') # Disable accelerated video encode
-edge_options.add_argument('--disable-accelerated-2d-canvas')    # Disable 2D canvas acceleration
-edge_options.add_argument('--use-gl=desktop')                   # Forces use of desktop OpenGL
-edge_options.add_argument('--disable-compositing')              # Disable compositing altogether.
-edge_options.add_argument('--use-angle=direct3d')               # Force Direct3D rendering backend
-edge_options.add_argument('--log-level=3')                      # Set logging to 'ERROR' level
-edge_options.add_argument('--disable-video-overlay')            # Disable video overlay features
-edge_options.add_argument('--disable-video-autoplay')           # Disable video autoplay features
-edge_options.add_argument('--disable-dev-shm-usage')            # Avoid logging related to dev tools
+# The following EdgeDriver options are supposed to be able to suppress the following two non
+# fatal messages seen when we run:
+#     (1) DevTools listening on ws://127.0.0.1:58245/devtools/browser/0b9eb838-130b-4d0b-93a6-a77ca6b7bacf
+#     (2) [28000:9296:0109/150350.346:ERROR:fallback_task_provider.cc(127)] ...
+# but did not work. ChatGPT believes:
+#     They are harmless. These logs do not impact the functionality of your script.
+#     Chromium Bug: The fallback_task_provider message refers to a known Chromium issue that remains
+#     unresolved.
+# Because there is no ChromeDriver for ARM64 CPU, I have to wait for fixes in EdgeDriver or
+# a ChromeDriver for ARM64. For now just keep the following block of code comment out
+# edge_options = Options()                                        # Needed for Maximize browser window etc
+# edge_options.add_argument('--disable-gpu')                      # Disables GPU hardware acceleration.
+# edge_options.add_argument('--disable-software-rasterizer')      # May help avoid relying on GPU HW acceleration
+# edge_options.add_argument('--force-compositing-mode')           # Forces compositing mode, avoiding GPU issues
+# edge_options.add_argument('--disable-accelerated-video-decode') # Disable accelerated video decode
+# edge_options.add_argument('--disable-accelerated-video-encode') # Disable accelerated video encode
+# edge_options.add_argument('--disable-accelerated-2d-canvas')    # Disable 2D canvas acceleration
+# edge_options.add_argument('--use-gl=desktop')                   # Forces use of desktop OpenGL
+# edge_options.add_argument('--disable-compositing')              # Disable compositing altogether.
+# edge_options.add_argument('--use-angle=direct3d')               # Force Direct3D rendering backend
+# edge_options.add_argument('--log-level=3')                      # Set logging to 'ERROR' level
+# edge_options.add_argument('--disable-video-overlay')            # Disable video overlay features
+# edge_options.add_argument('--disable-video-autoplay')           # Disable video autoplay features
+# edge_options.add_argument('--disable-dev-shm-usage')            # Avoid logging related to dev tools
 
 driver_class = webdriver.Edge      # Snapdragon has to use Selenium with Edge browser
 driver_path  = r"C:\Users\User\Yuming\edgedriver_arm64\msedgedriver.exe"    # Set path to EdgeDriver
@@ -74,22 +84,16 @@ try:  # Any exception during the loop will jump directly to the finally block.
             # Step 2: Set screen size to 90% of the Window using JavaScript, so it is easer to move the window around
             screen_width  = driver.execute_script("return window.screen.availWidth;")
             screen_height = driver.execute_script("return window.screen.availHeight;")
-
-            # Calculate 90% dimensions
-            width = int(screen_width * 0.9)
+            width  = int(screen_width  * 0.9)     # Calculate 90% dimensions
             height = int(screen_height * 0.9)
+            driver.set_window_size(width, height) # Resize the window to 90% of the screen size
 
-            # Resize the window to 90% of the screen size
-            driver.set_window_size(width, height)
-
-            # Step 3: Ensure the YouTube iframe is fully in view before switching to it
+            # Step 3: Ensure the YouTube iframe is fully in view and switch to it
             iframe = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, "youtube-iframe"))
             )
             driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", iframe)
-
-            # Switch to the YouTube iframe
-            driver.switch_to.frame(iframe)
+            driver.switch_to.frame(iframe)        # Switch to the YouTube iframe
 
             # Step 4: Ensure the play button is clickable and fully in view
             play_button = WebDriverWait(driver, 10).until(
@@ -106,14 +110,13 @@ try:  # Any exception during the loop will jump directly to the finally block.
             #        arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});
             #    }
             # """, play_button)
-
             # Add a brief pause after scrolling
-            time.sleep(2)
+            # time.sleep(2)
 
             # Step 5: Click the play button at the center of the embedded YouTube video
             ActionChains(driver).move_to_element(play_button).click(play_button).perform()
 
-            # Use JavaScript to set the volume of the embedded video to maximum
+            # Step 6: Use JavaScript to set the volume of the embedded video to maximum
             volume_script = """
             var video = document.querySelector('video');
             if (video) {
@@ -122,20 +125,18 @@ try:  # Any exception during the loop will jump directly to the finally block.
             """
             driver.execute_script(volume_script)
 
-
-            # Step 6: Call get_yt_video_duration(video['url']) to get the duration of the YouTube video from YouTube website
+            # Step 7: Call get_yt_video_duration(video['url']) to get the duration of the YouTube video from YouTube website
             # duration = 360  # Default time in seconds for play a video
             duration = get_video_duration(video['url']) + 3
             minutes, seconds = divmod(int(duration), 60)
             formatted_time = f"{minutes}:{seconds:02}"  # Format as "minutes:seconds"
-
             # Print video title and duration, reserve 3 spaces for aligning the numbers in 1~999
             print(f"{i+1:3}: {video['title']} {formatted_time}")
 
-            # Step 7: Wait for the embedded video to play for the specified duration
+            # Step 8: Wait for the embedded video to play for the specified duration
             time.sleep(duration)
 
-            # Step 8: Switch back to the main content
+            # Step 9: Switch back to the main content
             driver.switch_to.default_content()
 
         except Exception as e:

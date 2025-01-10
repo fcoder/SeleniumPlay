@@ -30,6 +30,10 @@ For compiled version:
   __pycache__
   selenium_play.spec
 
+Run Compiled Version:
+  dist/selenium_dragon     linode <n>
+  dist\selenium_dragon.exe linode <n>
+
 
 Must Do The Following Before Running The Python Code
   python3 -m venv venv
@@ -71,6 +75,13 @@ Run source code  ??? = play, mac, dragon, wintel
 Run compiled executable
   caffeinate -i dist/selenium_??? linode|local <n>
                 dist/selenium_??? linode|local <n>
+
+=================================
+Start From Shortcut And Run Batch
+=================================
+The shortcut 听歌学中文 will invoke the batch file play.bat under C:\Users\User\Yuming\Script, which
+is included in the Path system environment variable. play.bat can be run as play with or without
+a number for the videos to play. The shortcut will prompt a number
 
 Prepare Safari for using Selenium
 For Safari
