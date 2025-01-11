@@ -29,6 +29,14 @@ if len(sys.argv) != 3 or not (sys.argv[1] == 'linode' or sys.argv[1] == 'local')
     print("Usage: python selenium_play.py linode|local <num>, num is # of videos to play")
     sys.exit(1)
 
+# Check if this program is running on a WinTel computer
+arch = platform.machine()
+if arch == "x86_64" or arch == "AMD64":    # Don't confuse AMD64 with ARM64!
+    print(f"Running Selenium with Chrome on Windows with {arch} CPU")
+else:
+    print("Error: CPU is not x86_64 or ARM64")
+    sys.exit(1)
+
 if get_urls_from_server("All", server) == -1:     # All means all songs
     print("Error: abort")
     sys.exit(1)  # Abort!
@@ -38,17 +46,14 @@ if get_urls_from_server("Bonus", server) == -1:   # Bonus will get data for all 
 
 num_videos = len(videos)
 num_min    = min(num_input, num_videos)
-print(f"Got {num_videos} songs and bonus from server, playing the first {num_min}...")
+
+print(f"Playing {num_min} out of {num_videos} songs and bonuses from ", end='')
+if server == "linode":
+    print("www.chinesesong.net...")
+else:
+    print("localhost...")
 
 random.shuffle(videos)  # Shuffle the items inside array videos
-
-# Check if this program is running on a WinTel computer
-arch = platform.machine()
-if arch == "x86_64" or arch == "AMD64":    # Don't confuse AMD64 with ARM64!
-    print(f"Running Selenium with Chrome on Windows with {arch} CPU")
-else:
-    print("Error: CPU is not x86_64 or ARM64")
-    sys.exit(1)
 
 # Configure Chrome
 chrome_options = Options()
@@ -136,7 +141,7 @@ try:  # Any exception during the loop will jump directly to the finally block.
 
         except Exception as e:
             # Handle exceptions for individual URLs
-            print(f"Error processing URL {video['url']}: {e}")
+            print(f"Error processing {video['title']} at URL {video['url']}: {e}")
             continue  # Skip to the next video
 
 except KeyboardInterrupt:

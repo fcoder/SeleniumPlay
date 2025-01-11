@@ -23,11 +23,13 @@ if num_to_play < 1:
     print("The last command line argument must be a positive integer")
     sys.exit(1)
 
+# "linode" or "local" is used as function argument and used in get_server_urls.py
 if len(sys.argv) != 3 or not (sys.argv[1] == 'linode' or sys.argv[1] == 'local'):
     print("Usage: python selenium_mac.py linode|local <num>, num is # of videos to play")
     sys.exit(1)
 
-# Get the URLs of all songs and bonuses from chinesesong server. Save URLs in video[...]
+# Get the URLs of all songs and bonuses from chinesesong server at Linode or localhost:5001.
+# Save URLs in video[...]
 if get_urls_from_server("All", server) == -1:   # All means all songs
     print("Error: abort")
     sys.exit(1)  # Abort!
@@ -35,10 +37,17 @@ if get_urls_from_server("Bonus", server) == -1: # Bonus to get data for all bonu
     print("Error: abort")
     sys.exit(1)
 
+print("Running Selenium with Chrome on a MacBook...")
+
 num_videos = len(videos)  # Total number of songs and bonuses
 num_min    = min(num_to_play, num_videos)
 random.shuffle(videos)     # Shuffle the items inside array videos
-print(f"Got {num_videos} songs and bonus from server, playing the first {num_min}...")
+
+print(f"Playing {num_min} out of {num_videos} songs and bonuses from ", end='')
+if server == "linode":
+    print("www.chinesesong.net...")
+else:
+    print("localhost...")
 
 # Configure Chrome driver. For example: Start Chrome with a maximized window
 chrome_options = Options()
@@ -48,8 +57,6 @@ driver_class = webdriver.Chrome     # MacBook can use Chrome or Safari, but Chro
 driver_path  = "/Users/Yuming/MyInstall/chromedriver-mac-arm64/chromedriver"
 service      = Service(executable_path=driver_path)
 driver       = driver_class(service=service)
-
-print("Running Selenium with Chrome on a MacBook...")
 
 try:  # Any exception during the loop will jump directly to the finally block.
     for i, video in enumerate(videos):
@@ -101,6 +108,8 @@ try:  # Any exception during the loop will jump directly to the finally block.
             print(f"{i+1:3}: {video['title']} {formatted_time}")
 
             #! Step 6: Click the play button at the center of the embedded YouTube video
+            #  Note; the view function def song_for_selenium(song_id) in the server automatically
+            #  translates lyrics into English. The VF serves request from Selenium only
             ActionChains(driver).move_to_element(play_button).click(play_button).perform()
 
             # Step 7: Use JavaScript to set the volume of the embedded video to maximum
@@ -120,7 +129,7 @@ try:  # Any exception during the loop will jump directly to the finally block.
 
         except Exception as e:
             # Handle exceptions for individual URLs
-            print(f"Error processing URL {video['url']}: {e}")
+            print(f"Error processing {video['title']} at URL {video['url']}: {e}")
             continue  # Skip to the next video
 
 except KeyboardInterrupt:

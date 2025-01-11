@@ -24,6 +24,7 @@ if num_input < 1:
     print("The last command line argument must be a positive integer")
     sys.exit(1)
 
+# Actually, there is no Flask ChineseSong app running on localhost:5001 on Snapdragon
 if len(sys.argv) != 3 or not (sys.argv[1] == 'linode' or sys.argv[1] == 'local'):
     print("Usage: python selenium_play.py linode|local <num>, num is # of videos to play")
     sys.exit(1)
@@ -68,7 +69,12 @@ if get_urls_from_server("Bonus", server) == -1:  # Bonus will get data for all b
 
 num_videos = len(videos)
 num_min    = min(num_input, num_videos)
-print(f"Got {num_videos} songs and bonus from server, playing the first {num_min}...")
+
+print(f"Playing {num_min} out of {num_videos} songs and bonuses from ", end='')
+if server == "linode":
+    print("www.chinesesong.net...")
+else:
+    print("localhost...")
 
 random.shuffle(videos)  # Shuffle the items inside array videos
 
@@ -141,7 +147,7 @@ try:  # Any exception during the loop will jump directly to the finally block.
 
         except Exception as e:
             # Handle exceptions for individual URLs
-            print(f"Error processing URL {video['url']}: {e}")
+            print(f"Error processing {video['title']} at URL {video['url']}: {e}")
             continue  # Skip to the next video
 
 except KeyboardInterrupt:

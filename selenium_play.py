@@ -121,7 +121,12 @@ if ret1 == -1 or ret2 == -1:
 
 num_videos = len(videos)
 num_min    = min(num_input, num_videos)
-print(f"Got {num_videos} songs and bonus from server, playing the first {num_min}...")
+
+print(f"Playing {num_min} out of {num_videos} songs and bonuses from ", end='')
+if server == "linode":
+    print("www.chinesesong.net...")
+else:
+    print("localhost...")
 
 random.shuffle(videos)  # Shuffle the items inside array videos
 
@@ -202,7 +207,7 @@ try:  # Any exception during the loop will jump directly to the finally block.
 
         except Exception as e:
             # Handle exceptions for individual URLs
-            print(f"Error processing URL {video['url']}: {e}")
+            print(f"Error processing {video['title']} at URL {video['url']}: {e}")
             continue  # Skip to the next video
 
 except KeyboardInterrupt:
