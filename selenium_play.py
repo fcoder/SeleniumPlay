@@ -1,3 +1,8 @@
+# This file support MacBook, Snapdragon and WinTel, but is not updated
+# anymore, the latest code is in
+#    selenium_mac,py
+#    selenium_dragon,py
+#    selenium_wintel.py  (Not updated)
 # See cmds for some requirements before this program can run
 
 from selenium import webdriver

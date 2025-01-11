@@ -1,3 +1,7 @@
+:: This is a batch file for Snapdragon. So we can simply command
+:: python selenium_dragon.py linode <n> to play.bat <n>
+:: Or play <n> if we put play.bat in a folder known by the Path system
+:: environment variable.
 @echo off
 
 :: Use the absolute path to Selenium executable

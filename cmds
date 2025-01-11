@@ -1,3 +1,6 @@
+The Folder for This Program as a Standalone App is ~/MyProjects/Python/SmallProg/SeleniumPlay
+It is also in Chinesesong archive such user <root>tools/selenium
+
 ===============================
 How to Run the Compiled Program
 ===============================
@@ -7,9 +10,33 @@ On Yuming MacBook Pro
   play_local <n>    Run "flask run --port=5001" to start localhost server first
   play and play_local are scripts under /usr/local/bin
 
-On Susan Snapdragon
-  To do
+================================
+Make and Run On Susan Snapdragon
+================================
+  (1) cd C:\Users\User\Yuming\Selenium
+  (2) venv\Script\activate
+  (3) python selenium_dragon.py linode <n>
+  (4) Or compile with
+         pyinstaller --onefile selenium_dragon.py
+  (5) The back file play.bat has been put in C:\Users\User\Yuming\Script
+      which is in the Path system environment variable, so we can type play <n>
+      from anywhere in the Snapdragon to run this app. (play.bat knows that the
+      compiled selenium_dragon is under C:\Users\User\Yuming\Selenium\dist)
+  (6) There is also a shortcut on the Snapdragon, double click to ran the play.bat
+      in in C:\Users\User\Yuming\Script
 
+================================
+Make and Run on Yuming's MacBook
+================================
+  (1) cd ~/MyProjects/Python/SmallProg/Selenium
+  (2) source venv/bin/activate
+  (3) python3 selenium_mac.py linode <n>
+  (4) Or compile with
+         pyinstaller --onefile selenium_mac.py
+
+==========================
+Detailed Development Notes
+==========================
 Source Code
   selenium_play.py      For all platforms
   selenium_mac.py       For MacBook Pro
